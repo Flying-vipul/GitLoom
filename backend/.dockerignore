@@ -1,0 +1,27 @@
+# Maven build output
+../target/
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Docker development files
+docker-compose.yml
+docker/
+
+# OS files
+.DS_Store
+Thumbs.db

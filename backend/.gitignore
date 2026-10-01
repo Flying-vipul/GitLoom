@@ -9,6 +9,7 @@ target/
 .env.*
 !.env.example
 **/application.properties
+!**/application.properties.example
 
 ### STS ###
 .apt_generated
