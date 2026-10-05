@@ -25,7 +25,6 @@ public class SecurityConfig {
 
     private final GithubOAuth2UserService githubOAuth2UserService;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -35,24 +34,34 @@ public class SecurityConfig {
 
         http
 
+                // =========================
                 // CORS
+                // =========================
                 .cors(Customizer.withDefaults())
 
-
+                // =========================
                 // CSRF
+                // =========================
                 .csrf(csrf -> csrf.disable())
 
-
+                // =========================
                 // SESSION MANAGEMENT
+                // =========================
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
                                 SessionCreationPolicy.IF_REQUIRED
                         )
                 )
 
-
+                // =========================
                 // AUTHORIZATION
+                // =========================
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public health endpoint
+                        .requestMatchers(
+                                "/api/health"
+                        ).permitAll()
 
                         // Public authentication endpoints
                         .requestMatchers(
@@ -68,7 +77,7 @@ public class SecurityConfig {
                                 "/**"
                         ).permitAll()
 
-                        // Every API endpoint requires authentication
+                        // Every other API endpoint requires authentication
                         .requestMatchers("/api/**")
                         .authenticated()
 
@@ -79,6 +88,7 @@ public class SecurityConfig {
 
 
                 // UNAUTHENTICATED API RESPONSE
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(
                                 new HttpStatusEntryPoint(
@@ -89,6 +99,7 @@ public class SecurityConfig {
 
 
                 // GITHUB OAUTH2 LOGIN
+
                 .oauth2Login(oauth -> oauth
 
                         .userInfoEndpoint(userInfo -> userInfo
@@ -100,8 +111,9 @@ public class SecurityConfig {
                         .failureHandler(oauth2FailureHandler)
                 )
 
-
+                // =========================
                 // LOGOUT
+                // =========================
                 .logout(logout -> logout
 
                         .logoutUrl("/api/auth/logout")
@@ -120,12 +132,11 @@ public class SecurityConfig {
                         .deleteCookies("DEVPILOT_SESSION")
                 );
 
-
         return http.build();
     }
 
 
-    // OAuth2 SUCCESS HANDLER
+    // OAUTH2 SUCCESS HANDLER
 
     @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler(
@@ -142,9 +153,9 @@ public class SecurityConfig {
         return handler;
     }
 
-
-    // OAuth2 FAILURE HANDLER
-
+    // =========================
+    // OAUTH2 FAILURE HANDLER
+    // =========================
     @Bean
     public AuthenticationFailureHandler oauth2FailureHandler(
             @Value("${app.frontend-url}") String frontendUrl
