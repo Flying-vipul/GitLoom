@@ -1,11 +1,11 @@
 package devPilot.backend.DTO;
 
-import java.time.Instant;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import devPilot.backend.model.IndexStatus;
+
+import java.time.Instant;
+import java.util.UUID;
 
 public record RepositoryResponse(
         UUID id,
@@ -23,7 +23,7 @@ public record RepositoryResponse(
         int chunkCount,
         int filesTotal,
         int filesProcessed,
-        String errorMessage) {
-
-
+        String errorMessage
+) {
+    
 }
