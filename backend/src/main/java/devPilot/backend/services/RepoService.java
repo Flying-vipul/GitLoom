@@ -1,10 +1,13 @@
-package devPilot.backend.services.github;
+package devPilot.backend.services;
 
+import devPilot.backend.DTO.IndexStatusResponse;
 import devPilot.backend.DTO.RepositoryResponse;
+import devPilot.backend.exceptions.NotFoundException;
+import devPilot.backend.model.IndexStatus;
 import devPilot.backend.model.Repository;
 import devPilot.backend.model.User;
 import devPilot.backend.repository.RepoRepository;
-import devPilot.backend.services.UserService;
+import devPilot.backend.services.github.GithubApiClient;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +35,7 @@ public class RepoService {
 
 
         @Transactional
-        public List<RepositoryResponse> syncAndListRepo(UUID userId){
+        public List<RepositoryResponse> syncAndListRepos(UUID userId){
             User user = userService.requiredById(userId);
             String token = userService.decryptAccessToken(user);
             List<Map<String,Object>> remoteRepos = githubApiClient.listUserRepos(token);
@@ -148,8 +151,6 @@ public class RepoService {
                     .toList();
         }
 
-
-
         private static Long toLong(Object value){
             if(value instanceof Number number){
                 return number.longValue();
@@ -157,5 +158,22 @@ public class RepoService {
             return Long.parseLong(String.valueOf(value));
         }
 
+        @Transactional(readOnly = true)
+        public Repository requireOwned(UUID repoId, UUID userId){
+            return repoRepository.findByIdAndUserId(repoId,userId)
+                    .orElseThrow(() -> new NotFoundException("Repository not found"));
+        }
 
+        @Transactional(readOnly = true)
+        public IndexStatusResponse status(UUID repoId, UUID userId){
+            Repository repo = requireOwned(repoId,userId);
+            return new IndexStatusResponse(
+                    repo.getId(),
+                    repo.getIndexStatus(),
+                    repo.getFilesTotal(),
+                    repo.getFilesProcessed(),
+                    repo.getChunkCount(),
+                    repo.getIndexedAt(),
+                    repo.getErrorMessage());
+        }
 }
